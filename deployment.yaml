@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: podinfo
+  namespace: default
+  labels:
+    app: podinfo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: podinfo
+  template:
+    metadata:
+      labels:
+        app: podinfo
+    spec:
+      containers:
+        - name: podinfod
+          image: ghcr.io/stefanprodan/podinfo:6.6.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 9898
+              protocol: TCP
+          env:
+            - name: PODINFO_UI_COLOR
+              value: "#245bf5" # Start with Blue (v1.0)
+            - name: PODINFO_UI_MESSAGE
+              value: "Production v1.0 - Active Desired State"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: podinfo
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: podinfo
+  ports:
+    - port: 9898
+      targetPort: 9898
+      protocol: TCP
