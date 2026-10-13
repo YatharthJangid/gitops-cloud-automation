@@ -25,7 +25,7 @@ spec:
               protocol: TCP
           env:
             - name: PODINFO_UI_COLOR
-              value: "#16a34" # Start with Blue (v1.0)
+              value: "#16a34a" # Start with Blue (v1.0)
             - name: PODINFO_UI_MESSAGE
               value: "Production v2.0 - Deployed Live via GitOps!"
 ---
