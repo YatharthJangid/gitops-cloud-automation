@@ -8,7 +8,7 @@ All components are **100% active, healthy, and accessible**.
 
 | Service | Location | Credentials / Notes |
 | :--- | :--- | :--- |
-| **Public Web App (Podinfo)** | [https://secondary-called-reflect-distance.trycloudflare.com](https://secondary-called-reflect-distance.trycloudflare.com)<br>*(or local: [http://localhost:9898](http://localhost:9898))* | Accessible from any browser or phone |
+| **Public Web App (Podinfo)** | [https://dishes-expenses-bizrate-defense.trycloudflare.com](https://dishes-expenses-bizrate-defense.trycloudflare.com)<br>*(or local: [http://localhost:9898](http://localhost:9898))* | Accessible from any browser or phone |
 | **ArgoCD Dashboard** | [https://localhost:8080](https://localhost:8080) | Username: `admin`<br>Password: `ZkjaGmfMrPXLqUsV` |
 | **GitHub Source of Truth** | [https://github.com/YatharthJangid/gitops-cloud-automation](https://github.com/YatharthJangid/gitops-cloud-automation) | Public repo on `main` branch |
 
@@ -79,10 +79,28 @@ Arrange three side-by-side browser windows:
 
 ---
 
+### Act 4: Demonstrating Kubernetes Service Load Balancing (1.5 Minutes)
+* **Action:** Run the following commands in the terminal:
+  ```bash
+  # 1. Show the 4 backend endpoints registered to the Service
+  kubectl get endpoints podinfo
+
+  # 2. Fire 8 requests through the ClusterIP Service to prove load distribution
+  kubectl exec deployment/podinfo -- sh -c 'for i in $(seq 1 8); do curl -s http://podinfo:9898/ | grep hostname; done'
+  ```
+* **What happens live:**
+  - `kubectl get endpoints` proves that all 4 pod IP addresses are active in the load balancer pool.
+  - The curl loop demonstrates that `kube-proxy` distributes incoming requests round-robin across all 4 unique pod hostnames.
+* **What you say:**
+  > *"Because we scaled our application to 4 replicas in Git, Kubernetes automatically registered all 4 pods as active endpoints under our ClusterIP Service. When traffic arrives at the service, kube-proxy balances the load across all 4 containers, guaranteeing high availability and fault tolerance."*
+
+---
+
 ## 💡 Evaluation Q&A Cheat Sheet
 
 | Question | Strong Answer |
 | :--- | :--- |
+| **Where is the source code for the web UI you deployed?** | This project is an **Infrastructure-as-Code & GitOps Cloud Automation** system, not a frontend development project. We use **Podinfo** (`github.com/stefanprodan/podinfo`), the industry-standard CNCF reference microservice written in Go and packaged into container image `ghcr.io/stefanprodan/podinfo:6.6.0`. In a cloud-native GitOps repository, our "code" is declarative infrastructure manifests (`deployment.yaml` and `application.yaml`). We configure the application behavior, environment variables (like color and message), scaling replicas, and health probes declaratively through Git. |
 | **Why is pull-based GitOps safer than push-based CI/CD?** | Push-based CI systems (like Jenkins or GitHub Actions runners) require administrative cluster credentials (`kubeconfig`) stored externally. If the CI runner is compromised, the entire cluster is exposed. GitOps uses an internal pull agent (ArgoCD), so cluster access credentials never leave the cluster perimeter. |
 | **How does rollback work in this system?** | Since the entire deployment history is version-controlled, rolling back is just running `git revert <commit-hash>`. Pushing that commit causes ArgoCD to immediately roll back the cluster. Alternatively, you can click "Rollback" directly in the ArgoCD UI to revert to a previous revision. |
 | **What happens if Git goes down?** | The cluster continues running uninterrupted in its last known desired state. Only new deployments or sync operations are paused until Git connectivity resumes. |
