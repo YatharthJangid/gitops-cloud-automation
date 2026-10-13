@@ -6,7 +6,7 @@ metadata:
   labels:
     app: podinfo
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: podinfo
@@ -25,9 +25,9 @@ spec:
               protocol: TCP
           env:
             - name: PODINFO_UI_COLOR
-              value: "#16a34a" # Start with Blue (v1.0)
+              value: "#245bf5" # Start with Blue (v1.0)
             - name: PODINFO_UI_MESSAGE
-              value: "Production v2.0 - Deployed Live via GitOps!"
+              value: "Production v1.0 - Active Desired State"
 ---
 apiVersion: v1
 kind: Service
